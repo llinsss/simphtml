@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PetChain - Blockchain Pet Medical Records</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Reset and base styles */
+    :root {
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+      --primary-light: #93c5fd;
+      --secondary: #f3f4f6;
+      --text: #1f2937;
+      --text-light: #6b7280;
+      --background: #ffffff;
+      --background-alt: #f9fafb;
+      --border: #e5e7eb;
+      --radius: 0.5rem;
+      --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    /* Typography */
+    h1, h2, h3, h4, h5, h6 {
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    h2 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    h3 {
+      font-size: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    p {
+      margin-bottom: 1rem;
+    }
+
+    /* Layout */
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    .section {
+      padding: 4rem 0;
+    }
+
+    .section-alt {
+      background-color: var(--background-alt);
+    }
+
+    .section-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .text-muted {
+      color: var(--text-light);
+    }
+
+    /* Grid and Flexbox */
+    .flex {
+      display: flex;
+    }
+
+    .flex-col {
+      flex-direction: column;
+    }
+
+    .items-center {
+      align-items: center;
+    }
+
+    .justify-between {
+      justify-content: space-between;
+    }
+
+    .justify-center {
+      justify-content: center;
+    }
+
+    .gap-2 {
+      gap: 0.5rem;
+    }
+
+    .gap-4 {
+      gap: 1rem;
+    }
+
+    .gap-6 {
+      gap: 1.5rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    @media (min-width: 768px) {
+      .grid-cols-2 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .grid-cols-3 {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    /* Components */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background-color: var(--background);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 0;
+    }
+
+    .logo {
+      font-weight: 700;
+      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .nav {
+      display: none;
+    }
+
+    .nav a {
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .nav a:hover {
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+
+    @media (min-width: 768px) {
+      .nav {
+        display: flex;
+        gap: 1.5rem;
+      }
+    }
+
+    .mobile-menu-btn {
+      display: block;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    @media (min-width: 768px) {
+      .mobile-menu-btn {
+        display: none;
+      }
+    }
+
+    .mobile-menu {
+      position: fixed;
+      top: 0;
+      right: -100%;
+      width: 80%;
+      max-width: 300px;
+      height: 100vh;
+      background-color: var(--background);
+      padding: 2rem 1rem;
+      box-shadow: var(--shadow);
+      transition: right 0.3s ease;
+      z-index: 100;
+    }
+
+    .mobile-menu.active {
+      right: 0;
+    }
+
+    .mobile-menu-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .mobile-menu-links {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .mobile-menu-links a {
+      color: var(--text);
+      text-decoration: none;
+      font-size: 1rem;
+      font-weight: 500;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: none;
+      z-index: 90;
+    }
+
+    .overlay.active {
+      display: block;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius);
+      font-weight: 500;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-outline:hover {
+      background-color: var(--secondary);
+    }
+
+    .btn-lg {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+    }
+
+    .btn-white {
+      background-color: white;
+      color: var(--primary);
+      border: none;
+    }
+
+    .btn-white:hover {
+      background-color: var(--secondary);
+    }
+
+    .btn-outline-white {
+      background-color: transparent;
+      color: white;
+      border: 1px solid white;
+    }
+
+    .btn-outline-white:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Cards */
+    .card {
+      background-color: var(--background);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+    }
+
+    .feature-card {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 1.5rem;
+      background-color: var(--background);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .feature-icon {
+      font-size: 2rem;
+      color: var(--primary);
+      margin-bottom: 1rem;
+    }
+
+    /* Hero section */
+    .hero {
+      padding: 5rem 0;
+      background: linear-gradient(to bottom, var(--background), var(--background-alt));
+    }
+
+    .hero-content {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    @media (min-width: 992px) {
+      .hero-content {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .hero-image {
+      width: 100%;
+      max-width: 500px;
+      height: auto;
+      border-radius: var(--radius);
+      margin: 0 auto;
+    }
+
+    /* Features section */
+    .features-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 768px) {
+      .features-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    /* How it works section */
+    .step {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 1.5rem;
+    }
+
+    .step-number {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 3rem;
+      height: 3rem;
+      background-color: var(--primary);
+      color: white;
+      border-radius: 50%;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .step-arrow {
+      position: absolute;
+      top: 3rem;
+      right: -1rem;
+      font-size: 2rem;
+      color: var(--text-light);
+      display: none;
+    }
+
+    @media (min-width: 768px) {
+      .step-arrow {
+        display: block;
+      }
+    }
+
+    /* Benefits section */
+    .benefit-item {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+
+    .benefit-icon {
+      color: var(--primary);
+      margin-right: 0.5rem;
+      margin-top: 0.25rem;
+    }
+
+    /* Form */
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background-color: var(--background);
+      font-size: 0.875rem;
+    }
+
+    textarea.form-control {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px var(--primary-light);
+    }
+
+    /* Footer */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 0;
+    }
+
+    /* Utilities */
+    .mt-2 { margin-top: 0.5rem; }
+    .mt-4 { margin-top: 1rem; }
+    .mt-6 { margin-top: 1.5rem; }
+    .mt-8 { margin-top: 2rem; }
+    .mb-2 { margin-bottom: 0.5rem; }
+    .mb-4 { margin-bottom: 1rem; }
+    .mb-6 { margin-bottom: 1.5rem; }
+    .mb-8 { margin-bottom: 2rem; }
+
+    .mx-auto { margin-left: auto; margin-right: auto; }
+    .max-w-lg { max-width: 32rem; }
+    .max-w-xl { max-width: 36rem; }
+    .max-w-3xl { max-width: 48rem; }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border-width: 0;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="container">
+      <div class="flex justify-between items-center">
+        <div class="logo">
+          <i class="fas fa-shield-alt" style="color: var(--primary);"></i>
+          <span>PetChain</span>
+        </div>
+        <nav class="nav">
+          <a href="#features">Features</a>
+          <a href="#how-it-works">How It Works</a>
+          <a href="#benefits">Benefits</a>
+          <a href="#contact" class="btn btn-outline">Contact Us</a>
+          <a href="#signup" class="btn btn-primary">Get Started</a>
+        </nav>
+        <button class="mobile-menu-btn" id="mobile-menu-btn">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Menu -->
+  <div class="overlay" id="overlay"></div>
+  <div class="mobile-menu" id="mobile-menu">
+    <button class="mobile-menu-close" id="mobile-menu-close">
+      <i class="fas fa-times"></i>
+    </button>
+    <div class="mobile-menu-links">
+      <a href="#features">Features</a>
+      <a href="#how-it-works">How It Works</a>
+      <a href="#benefits">Benefits</a>
+      <a href="#contact">Contact Us</a>
+      <a href="#signup" class="btn btn-primary">Get Started</a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main>
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="container">
+        <div class="hero-content">
+          <div>
+            <h1>Streamlining Pet Medical Records with Blockchain Technology</h1>
+            <p class="text-muted">PetChain eliminates paperwork by making pet medical records easily accessible and verifiable through blockchain technology and QR codes.</p>
+            <div class="flex gap-4 mt-6">
+              <a href="#signup" class="btn btn-primary btn-lg">
+                Get Started
+                <i class="fas fa-arrow-right ml-2"></i>
+              </a>
+              <a href="#learn-more" class="btn btn-outline btn-lg">Learn More</a>
+            </div>
+          </div>
+          <div>
+            <img src="https://placehold.co/500x500" alt="Pet with veterinarian" class="hero-image">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Problem Section -->
+    <section class="section" id="problem">
+      <div class="container">
+        <div class="max-w-3xl mx-auto text-center mb-8">
+          <h2>The Problem</h2>
+          <p class="text-muted">In Africa, veterinary practices still rely heavily on paper-based record keeping, leading to:</p>
+        </div>
+        <div class="grid grid-cols-3">
+          <div class="feature-card">
+            <i class="fas fa-file-alt feature-icon"></i>
+            <h3>Inefficient Paperwork</h3>
+            <p class="text-muted">Veterinarians waste valuable time managing and searching through paper records.</p>
+          </div>
+          <div class="feature-card">
+            <i class="fas fa-users feature-icon"></i>
+            <h3>Limited Access</h3>
+            <p class="text-muted">Pet owners rarely have up-to-date medical records readily available when needed.</p>
+          </div>
+          <div class="feature-card">
+            <i class="fas fa-shield-alt feature-icon"></i>
+            <h3>Verification Challenges</h3>
+            <p class="text-muted">Proving a pet's medical history during travel or sales is difficult and unreliable.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Solution Section -->
+    <section class="section section-alt" id="features">
+      <div class="container">
+        <div class="max-w-3xl mx-auto text-center mb-8">
+          <h2>Our Solution</h2>
+          <p class="text-muted">PetChain leverages Starknet blockchain technology to revolutionize pet medical record management.</p>
+        </div>
+        <div class="features-grid">
+          <div class="feature-card">
+            <i class="fas fa-stethoscope feature-icon"></i>
+            <h3>Digital Record Management</h3>
+            <p class="text-muted">Veterinarians can easily enter, update, and access pet medical records through a secure digital platform.</p>
+          </div>
+          <div class="feature-card">
+            <i class="fas fa-qrcode feature-icon"></i>
+            <h3>QR Code Access</h3>
+            <p class="text-muted">Pet owners receive a PetChain card with a QR code for instant access to their pet's medical history.</p>
+          </div>
+          <div class="feature-card">
+            <i class="fas fa-shield-alt feature-icon"></i>
+            <h3>Blockchain Security</h3>
+            <p class="text-muted">All records are secured on Starknet blockchain, ensuring data integrity and immutability.</p>
+          </div>
+          <div class="feature-card">
+            <i class="fas fa-users feature-icon"></i>
+            <h3>Owner Dashboard</h3>
+            <p class="text-muted">Pet owners can view their pet's complete medical history through an intuitive dashboard.</p>
+          </div>
+          <div class="feature-card">
+            <i class="fas fa-file-alt feature-icon"></i>
+            <h3>Verification System</h3>
+            <p class="text-muted">Easily verify pet medical records for travel, sales, or adoption purposes.</p>
+          </div>
+          <div class="feature-card">
+            <i class="fas fa-arrow-right feature-icon"></i>
+            <h3>Emergency Access</h3>
+            <p class="text-muted">Quick access to critical medical information in emergency situations or when visiting new veterinarians.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="section" id="how-it-works">
+      <div class="container">
+        <div class="max-w-3xl mx-auto text-center mb-8">
+          <h2>How It Works</h2>
+          <p class="text-muted">PetChain's simple yet powerful workflow makes pet medical record management seamless.</p>
+        </div>
+        <div class="grid grid-cols-3">
+          <div class="step">
+            <div class="step-number">1</div>
+            <h3>Veterinarian Input</h3>
+            <p class="text-muted">Veterinarians enter pet medical data into the secure PetChain platform.</p>
+            <div class="step-arrow">
+              <i class="fas fa-arrow-right"></i>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">2</div>
+            <h3>Blockchain Storage</h3>
+            <p class="text-muted">Records are securely stored on Starknet blockchain with zero-knowledge proof technology.</p>
+            <div class="step-arrow">
+              <i class="fas fa-arrow-right"></i>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">3</div>
+            <h3>QR Access</h3>
+            <p class="text-muted">Pet owners and veterinarians access records instantly by scanning the PetChain QR code.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section class="section section-alt" id="benefits">
+      <div class="container">
+        <div class="max-w-3xl mx-auto text-center mb-8">
+          <h2>Benefits</h2>
+          <p class="text-muted">PetChain provides unique advantages for all stakeholders in pet healthcare.</p>
+        </div>
+        <div class="grid grid-cols-2">
+          <div>
+            <h3 class="mb-4">For Veterinarians</h3>
+            <div class="benefit-item">
+              <i class="fas fa-check benefit-icon"></i>
+              <span>Eliminate time-consuming paperwork and record management</span>
+            </div>
+            <div class="benefit-item">
+              <i class="fas fa-check benefit-icon"></i>
+              <span>Access complete pet medical histories instantly</span>
+            </div>
+            <div class="benefit-item">
+              <i class="fas fa-check benefit-icon"></i>
+              <span>Improve diagnosis with comprehensive medical background</span>
+            </div>
+            <div class="benefit-item">
+              <i class="fas fa-check benefit-icon"></i>
+              <span>Enhance practice efficiency and patient care</span>
+            </div>
+          </div>
+          <div>
+            <h3 class="mb-4">For Pet Owners</h3>
+            <div class="benefit-item">
+              <i class="fas fa-check benefit-icon"></i>
+              <span>Access your pet's complete medical history anytime</span>
+            </div>
+            <div class="benefit-item">
+              <i class="fas fa-check benefit-icon"></i>
+              <span>Easily share records when traveling or visiting new veterinarians</span>
+            </div>
+            <div class="benefit-item">
+              <i class="fas fa-check benefit-icon"></i>
+              <span>Provide verifiable medical history when selling or rehoming pets</span>
+            </div>
+            <div class="benefit-item">
+              <i class="fas fa-check benefit-icon"></i>
+              <span>Ensure proper care in emergency situations</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="section section-primary" id="signup">
+      <div class="container">
+        <div class="max-w-3xl mx-auto text-center">
+          <h2>Ready to Transform Pet Healthcare?</h2>
+          <p class="mb-6">Join the PetChain revolution and be among the first to experience the future of pet medical record management.</p>
+          <div class="flex justify-center gap-4">
+            <a href="#contact" class="btn btn-white btn-lg">Request a Demo</a>
+            <a href="#learn-more" class="btn btn-outline-white btn-lg">Learn More</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="section" id="contact">
+      <div class="container">
+        <div class="max-w-3xl mx-auto text-center mb-8">
+          <h2>Contact Us</h2>
+          <p class="text-muted">Interested in learning more about PetChain? Get in touch with our team.</p>
+        </div>
+        <form class="max-w-lg mx-auto">
+          <div class="form-group">
+            <label for="name" class="form-label">Name</label>
+            <input type="text" id="name" class="form-control" placeholder="Enter your name">
+          </div>
+          <div class="form-group">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" id="email" class="form-control" placeholder="Enter your email">
+          </div>
+          <div class="form-group">
+            <label for="message" class="form-label">Message</label>
+            <textarea id="message" class="form-control" placeholder="Enter your message"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">Send Message</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="logo">
+          <i class="fas fa-shield-alt" style="color: var(--primary);"></i>
+          <span>PetChain</span>
+        </div>
+        <p class="text-muted">© <span id="current-year"></span> PetChain. All rights reserved.</p>
+        <div class="flex gap-4">
+          <a href="#" class="text-muted">Privacy Policy</a>
+          <a href="#" class="text-muted">Terms of Service</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Mobile menu functionality
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const mobileMenuClose = document.getElementById('mobile-menu-close');
+    const overlay = document.getElementById('overlay');
+
+    mobileMenuBtn.addEventListener('click', () => {
+      mobileMenu.classList.add('active');
+      overlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    });
+
+    mobileMenuClose.addEventListener('click', () => {
+      mobileMenu.classList.remove('active');
+      overlay.classList.remove('active');
+      document.body.style.overflow = '';
+    });
+
+    overlay.addEventListener('click', () => {
+      mobileMenu.classList.remove('active');
+      overlay.classList.remove('active');
+      document.body.style.overflow = '';
+    });
+
+    // Close mobile menu when clicking on a link
+    const mobileMenuLinks = document.querySelectorAll('.mobile-menu-links a');
+    mobileMenuLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.remove('active');
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+      });
+    });
+
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        const targetId = this.getAttribute('href');
+        if (targetId === '#') return;
+        
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+          window.scrollTo({
+            top: targetElement.offsetTop - 80,
+            behavior: 'smooth'
+          });
+        }
+      });
+    });
+
+    // Set current year in footer
+    document.getElementById('current-year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
